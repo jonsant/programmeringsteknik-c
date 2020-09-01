@@ -7,7 +7,9 @@ namespace WordsApp
     class Program
     {
         static void Main(string[] args)
-        { 
+        {
+            // Skriv en konsolapplikation som tar emot en skriven text.
+
             // Word count
             // Vowel count
             // Longest word
@@ -42,6 +44,11 @@ namespace WordsApp
                     counter = s.Length;
                 }
             }
+
+            // Vi vill ha ut följande:
+            // Antal ord?
+            // Antal vokaler?
+            // Vilket är det längsta ordet?
 
             Console.WriteLine($"Word count: {wordCount}\n" +
                 $"Vowel count: {vowelCount}\n" +
