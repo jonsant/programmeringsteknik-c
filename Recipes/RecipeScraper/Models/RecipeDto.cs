@@ -6,9 +6,8 @@ namespace RecipeScraper.Models
     {
         public string Name { get; set; }
         public string Image { get; set; }
-        public List<string> RecipeIngredient { get; set; }
-        public List<Step> Steps { get; set; }
         public string Description { get; set; }
+        public List<string> RecipeIngredient { get; set; }
         public List<InstructionDto> RecipeInstructions { get; set; }
     }
 }

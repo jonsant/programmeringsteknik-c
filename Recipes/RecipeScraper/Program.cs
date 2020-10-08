@@ -1,5 +1,12 @@
-﻿using System;
+﻿using HtmlAgilityPack;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Text.RegularExpressions;
 
 namespace RecipeScraper
 {
@@ -9,7 +16,6 @@ namespace RecipeScraper
         {
             // Klockan är 03:35, måste bara få detta att funka till imorgon.
             var list = new List<Recipe>();
-
             var addresses = new List<string>
             {
                 "https://www.koket.se/smorstekt-torskrygg-med-pestoslungad-blomkal-och-sparris",
@@ -22,9 +28,7 @@ namespace RecipeScraper
             {
                 var recipe = Scraper.GetRecipe(url);
                 list.Add(recipe);
-
             }
-
 
             try
             {
@@ -48,9 +52,10 @@ namespace RecipeScraper
                     Console.WriteLine("Steg:");
 
                     var stepCount = 1;
+
                     foreach (var step in recipe.Steps)
                     {
-                        Console.WriteLine($"{stepCount++}: {step.Text}");
+                         Console.WriteLine($"{stepCount++}: {step.Text}");
                     }
 
                     Console.WriteLine();
@@ -67,9 +72,9 @@ namespace RecipeScraper
     {
         public string Name { get; set; }
         public string Image { get; set; }
+        public string Description { get; set; }
         public List<Ingredient> Ingredients { get; set; }
         public List<Step> Steps { get; set; }
-        public string Description { get; internal set; }
     }
 
     class Ingredient

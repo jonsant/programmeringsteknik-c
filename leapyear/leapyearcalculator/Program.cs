@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 
 namespace leapyearcalculator
 {
@@ -8,83 +7,27 @@ namespace leapyearcalculator
         static void Main(string[] args)
         {
             // Räkna ut hur många skottår som passerat mellan två inmatade värden.
-
             // DateTime.IsLeapYear(year) är en metod man kan använda.
 
-            bool running = true;
+            int firstYear = int.Parse(args[0]);
+            int secondYear = int.Parse(args[1]);
 
-            while (running)
+            int maxYear = Math.Max(firstYear, secondYear);
+            int minYear = Math.Min(firstYear, secondYear);
+
+            int leapYearCount = 0;
+
+            for (int year = minYear; year <= maxYear; year++)
             {
-                //string input;
+                bool isLeapYear = DateTime.IsLeapYear(year);
 
-                //Console.Write("Write a date: ");
-                //input = Console.ReadLine();
-                //DateTime startDate = Convert.ToDateTime(input);
-
-                //Console.Write("Write a second date: ");
-                //input = Console.ReadLine();
-                //DateTime endDate = Convert.ToDateTime(input);
-
-                //int numberOfLeapYears = 0;
-
-                //for (int i = startDate.Year; i < endDate.Year; i++)
-                //{
-                //    if (DateTime.IsLeapYear(i))
-                //    {
-                //        numberOfLeapYears++;
-                //    }
-                //}
-
-                //Console.WriteLine($"Your timespan contains {numberOfLeapYears} leapyears.");
-
-                string input = "";
-                DateTime startDate;
-                DateTime secondDate;
-
-                Console.Write("Write a date: ");
-                input = Console.ReadLine();
-
-                while(!TryParseDate(input, out startDate))
+                if (isLeapYear)
                 {
-                    Console.Write("Write a date: ");
-                    input = Console.ReadLine();
+                    leapYearCount++;
                 }
-
-                Console.Write("Write a second date: ");
-                input = Console.ReadLine();
-
-                while (!TryParseDate(input, out secondDate))
-                {
-                    Console.Write("Write a second date: ");
-                    input = Console.ReadLine();
-                }
-
-                int numberOfLeapYears = 0;
-
-                for (int i = startDate.Year; i <= secondDate.Year; i++)
-                {
-                    if (DateTime.IsLeapYear(i))
-                    {
-                        numberOfLeapYears++;
-                    }
-                }
-
-                Console.WriteLine($"Your timespan contains {numberOfLeapYears} leapyears.");
             }
 
-        }
-
-        public static bool TryParseDate(string input, out DateTime dt)
-        {
-            try
-            {
-                dt = Convert.ToDateTime(input);
-                return true;
-            } catch(Exception e)
-            {
-                dt = DateTime.Today;
-                return false;
-            }
+            Console.WriteLine($"Encountered {leapYearCount} leap years from {minYear} to {maxYear}.");
         }
     }
 }

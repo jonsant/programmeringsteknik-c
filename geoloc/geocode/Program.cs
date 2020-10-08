@@ -1,23 +1,32 @@
-﻿using NGeoNames;
+﻿using geocode.Extensions;
+using NGeoNames;
 using NGeoNames.Entities;
-using System.Collections.Generic;
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Globalization;
-using System.Resources;
+using System.Linq;
 
 namespace geocode
 {
     class Program
     {
+        const string _resourcePath = ".\\Resources\\SE.txt";
+
         static readonly IEnumerable<ExtendedGeoName> _locationNames;
         static readonly ReverseGeoCode<ExtendedGeoName> _reverseGeoCodingService;
-        static readonly CultureInfo _formatProvider;
+        
+        static readonly (double Lat, double Lng) _gavlePosition;
+        static readonly (double Lat, double Lng) _uppsalaPosition;
+
+        static readonly IFormatProvider _formatProvider;
 
         static Program()
         {
-            _locationNames = GeoFileReader.ReadExtendedGeoNames(".\\Resources\\SE.txt");
+            _locationNames = GeoFileReader.ReadExtendedGeoNames(_resourcePath);
             _reverseGeoCodingService = new ReverseGeoCode<ExtendedGeoName>(_locationNames);
+
+            _gavlePosition = (60.674622, 17.141830);
+            _uppsalaPosition = (59.858562, 17.638927);
 
             _formatProvider = CultureInfo.InvariantCulture;
         }
@@ -25,15 +34,26 @@ namespace geocode
         static void Main(string[] args)
         {
             // 1. Hitta de 10 närmsta platserna till Gävle (60.674622, 17.141830), sorterat på namn.
-            ListGavleLocations();
+            Console.WriteLine("1. Gävle");
+            Console.WriteLine("--------");
+            ListGavlePositions();
 
-            // 2. Hitta alla platser inom 200 km radie till Uppsala (59.858562, 17.638927), sorterat på avstånd.
-            ListUppsalaLocations();
+            Console.WriteLine();
 
-            // 3. Lista x platser baserat på användarinmatning.
-            Console.WriteLine("User: ");
+            // 2. Hitta de 50 närmsta platserna inom 200 km radie till Uppsala (59.858562, 17.638927), sorterat på avstånd.
+            Console.WriteLine("2. Uppsala");
             Console.WriteLine("----------");
+            ListUppsalaPositions();
+
+            Console.WriteLine();
+
+            // 3. Lista 10 platser baserat på användarinmatning av latitud och longitud.
+            Console.WriteLine("3. User");
+            Console.WriteLine("-------");
+
             ListUserPositions(args);
+
+            Console.WriteLine();
             
         }
 
@@ -52,73 +72,31 @@ namespace geocode
             }
         }
 
-        static void ListUppsalaLocations()
+        static void ListUppsalaPositions()
         {
-            var uppsala = _reverseGeoCodingService.CreateFromLatLong(59.858562, 17.638927);
-            var locsWithin200KmOfUppsala = _reverseGeoCodingService.RadialSearch(uppsala, 200_000, 50);
-            //locsWithin200KmOfUppsala = locsWithin200KmOfUppsala.OrderBy(p => p.DistanceTo(uppsala));
+            var radius = 200 * 1000;
+            var nearestUppsala = _reverseGeoCodingService.RadialSearch(_uppsalaPosition.Lat, _uppsalaPosition.Lng, radius, 50);
 
-            Console.WriteLine("\nSites within 200 Km of Uppsala:");
-            ListLocations(locsWithin200KmOfUppsala);
-        }
+            nearestUppsala = nearestUppsala.OrderBy(x => x.DistanceTo(_uppsalaPosition.Lat, _uppsalaPosition.Lng));
 
-        static void ListGavleLocations()
-        {
-            var gavle = _reverseGeoCodingService.CreateFromLatLong(60.674622, 17.141830);
-            List<GeoName> nearestGavle = _reverseGeoCodingService.NearestNeighbourSearch(gavle, 10).ToList<GeoName>();
-            nearestGavle.Sort(compareGeos);
-            //nearestGavle = nearestGavle.OrderBy(p => p.Name);
-
-            Console.WriteLine("10 Nearest Gävle:");
-            ListLocations(nearestGavle);
-        }
-
-        static void ListLocations(IEnumerable<GeoName> list)
-        {
-            foreach (var loc in list)
+            foreach (var position in nearestUppsala)
             {
-                Console.WriteLine(loc.Name + " " + loc.Latitude + ", " + loc.Longitude);
+                var uppsalaDistance = position.DistanceTo(_uppsalaPosition.Lat, _uppsalaPosition.Lng);
+
+                Console.WriteLine($"{position.Name}, distance to Uppsala: {uppsalaDistance}");
             }
         }
 
-        static int compareGeos(GeoName g1, GeoName g2)
+        static void ListGavlePositions()
         {
-            CultureInfo ci = new CultureInfo("sv-SE");
+            var nearestGavle = _reverseGeoCodingService.RadialSearch(_gavlePosition.Lat, _gavlePosition.Lng, 10);
 
-            if (g1 == null)
+            nearestGavle = nearestGavle.OrderBy(p => p.Name);
+
+            foreach (var position in nearestGavle)
             {
-                if (g2 == null)
-                {
-                    return 0;
-                }
-                else
-                {
-                    return -1;
-                }
+                Console.WriteLine($"{position.Name}, lat: {position.Latitude}, lng: {position.Longitude}");
             }
-            else
-            {
-                if (g2 == null)
-                {
-                    return 1;
-                }
-                else
-                {
-                    int res = string.Compare(g1.Name, g2.Name, true, ci);
-
-                    if (res != 0)
-                    {
-                        return res;
-                    }
-                    else
-                    {
-                        return 1;
-                    }
-                }
-            }
-
-
-
         }
     }
 }

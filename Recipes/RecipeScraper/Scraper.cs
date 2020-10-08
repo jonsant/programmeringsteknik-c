@@ -45,8 +45,8 @@ namespace RecipeScraper
         private static Recipe CreateRecipe(JObject recipeData)
         {
             var dto = recipeData.ToObject<RecipeDto>(_serializer);
-
-            return new Recipe()
+            
+            return new Recipe
             {
                 Name = dto.Name,
                 Description = dto.Description,
@@ -56,9 +56,10 @@ namespace RecipeScraper
             };
         }
 
-        private static List<Step> MapSteps(List<InstructionDto> instructions)
+        private static List<Step> MapSteps(List<InstructionDto> instructionData)
         {
-            return instructions.Select(MapStep).ToList();
+            return instructionData.Select(MapStep)
+                                  .ToList();
         }
 
         private static Step MapStep(InstructionDto instructionData)
@@ -76,7 +77,7 @@ namespace RecipeScraper
         private static List<Ingredient> MapIngredients(List<string> ingredientData)
         {
             return ingredientData.Select(MapIngredient)
-                                    .ToList();
+                                 .ToList();
         }
 
         private static Ingredient MapIngredient(string ingredientText)
@@ -87,6 +88,7 @@ namespace RecipeScraper
             if (double.TryParse(amountData, out var amount))
             {
                 var name = ingredientData.Skip(2);
+
                 return new Ingredient
                 {
                     Amount = amount,
@@ -100,5 +102,4 @@ namespace RecipeScraper
             }
         }
     }
-
 }
